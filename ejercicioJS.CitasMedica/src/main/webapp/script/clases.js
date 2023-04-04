@@ -5,11 +5,12 @@
 //Clase generica creada para que hereden usuario y médico por que comparten muchas similitudes, reciclamos codigo y no se repite.
 export class Persona{
 	
-	constructor(id,nombreApellidos,dni,telefono){
+	constructor(id,nombreApellidos,dni,telefono,fechaNacimiento){
 		this._id=id;
 		this._nombreApellidos=nombreApellidos;
 		this._telefono=telefono;
 		this._dni=dni;
+		this._fechaNacimiento=fechaNacimiento;
 	}
 	get id(){
 		return this._id;
@@ -32,17 +33,35 @@ export class Persona{
 	set telefono(telefono){
 		this._telefono=telefono;
 	}
+	get fechaNacimiento(){
+		return `${this._fechaNacimiento.getDate()}/${this._fechaNacimiento.getMonth()+1}/${this._fechaNacimiento.getFullYear()}`;
+	}
+	set fechaNacimiento(fecha){
+		this._fechaNacimiento=fecha;
+	}
 	
 	mostrarDatos(){	
-		console.log(`\n----- Datos de la persona -----\n\nNombre: ${this._nombreApellidos}\nDNI: ${this._dni}\nTelefono: ${this._telefono}`);
+		console.log(`\n----- Datos de la persona -----\n\nNombre: ${this._nombreApellidos}\nDNI: ${this._dni}\nTeléfono: ${this._telefono}`);
+	}
+	
+	calcularEdad(){
+		const fechaActual = new Date();
+		const mesActual= fechaActual.getMonth()+1;
+		const diaActual = fechaActual.getDate();
+		const anyoActual = fechaActual.getFullYear();
+		
+		if(mesActual < this._fechaNacimiento.getMonth()+1 || (mesActual === this._fechaNacimiento.getMonth()+1 && diaActual < this._fechaNacimiento.getDate()))
+			return anyoActual-this._fechaNacimiento.getFullYear()-1;
+		else	
+			return anyoActual-this._fechaNacimiento.getFullYear();
 	}
 }
 
 //Clase usuario que hereda de persona y tiene como atributo propio el número de la seguridad social.
 export class Usuario extends Persona{
 	
-	constructor(id,nombreApellidos,numTarjetaSanitaria,dni,telefono){
-		super(id,nombreApellidos,dni,telefono);
+	constructor(id,nombreApellidos,numTarjetaSanitaria,dni,telefono,fechaNacimiento){
+		super(id,nombreApellidos,dni,telefono,fechaNacimiento);
 		this._numTarjetaSanitaria=numTarjetaSanitaria;
 	}
 
@@ -54,15 +73,15 @@ export class Usuario extends Persona{
 	}
 	
 	mostrarDatos(){
-		console.log(`\n----- Datos del usuario -----\n\nNombre: ${this._nombreApellidos}\nDNI: ${this._dni}\nTelefono: ${this._telefono}\nTarjeta sanitaria: ${this._numTarjetaSanitaria}`);
+		console.log(`\n----- Datos del usuario -----\n\nNombre: ${this._nombreApellidos}\nEdad: ${this.calcularEdad()}\nDNI: ${this._dni}\nTeléfono: ${this._telefono}\nNúmero tarjeta sanitaria: ${this._numTarjetaSanitaria}`);
 	}
 }
 
 //Clase médico que hereda de persona y tiene como atributo propio el número de colegiado médico y la especialidad médica.
 export class Medico extends Persona{
 	
-	constructor(id,nombreApellidos,dni,telefono,numColegiado,especialidad){
-		super(id,nombreApellidos,dni,telefono);
+	constructor(id,nombreApellidos,dni,telefono,numColegiado,especialidad,fechaNacimiento){
+		super(id,nombreApellidos,dni,telefono,fechaNacimiento);
 		this._numColegiado=numColegiado;
 		this._especialidad=especialidad;
 	}
@@ -140,13 +159,14 @@ export class Consulta {
 //Clase que tendrá la info sobre las citas médicas registradas por los pacientes
 export class CitaMedica{
 	
-	constructor(id,nombrePaciente,fecha,centroMedico,consulta,medico){
+	constructor(id,nombrePaciente,fecha,centroMedico,consulta,medico,motivoCita){
 		this._id=id;
 		this._nombrePaciente=nombrePaciente;
 		this._fecha=fecha;
 		this._centroMedico=centroMedico;
 		this._consulta=consulta;
 		this._medico=medico;
+		this._motivoCita=motivoCita;
 	}
 	
 	//Propiedades de solo lectura de la cita médica registrada
@@ -177,9 +197,22 @@ export class CitaMedica{
 	set medico(medico){
 		this._medico=medico;
 	}
+	get motivoCita(){
+		return this._motivoCita;
+	}
+	set motivoCita(mensaje){
+		this._motivoCita=mensaje;
+	}
 	
 	mostrarDatos(){
-		console.log(`\n----- Datos de la cita médica -----\n\nid cita: ${this._id}\nNombre del paciente: ${this._nombrePaciente}\nFecha y hora: ${this._fecha.getDate()}/${this._fecha.getMonth()+1}/${this._fecha.getFullYear()} ${this._fecha.getHours()}:${this._fecha.getMinutes()}\nCentro médico: ${this._centroMedico}\nConsulta: ${this._consulta.numero}\nMédico: ${this._medico}`);
+		const fecha = `${this._fecha.getDate()}/${this._fecha.getMonth()+1}/${this._fecha.getFullYear()}`;
+		//Con método padStart() rellenamos la hora y los minutos para que se muestre el formato correcto 00:00 
+		const horaConFormato =String(this._fecha.getHours()).padStart(2,"0")+":"+String(this._fecha.getMinutes()).padStart(2,"0");
+		
+		
+		console.log(`\n----- Datos de la cita médica -----\n\nid cita: ${this._id}\nNombre del paciente: ${this._nombrePaciente}`);
+		console.log(`\nFecha y hora: ${fecha} ${horaConFormato}\nCentro médico: ${this._centroMedico}`);
+		console.log(`\nConsulta número: ${this._consulta.numero}\nMédico: ${this._medico}\nMotivo de la cita: ${this._motivoCita}`);
 	}			
 }
 
